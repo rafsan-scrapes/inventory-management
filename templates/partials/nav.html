@@ -1,0 +1,10 @@
+<nav>
+  <a class="home-link" href="{% url 'dashboard-index' %}">
+    <i id="box" class="fa-solid fa-cube"></i>Inventory Management
+  </a>
+  
+  <form action="{% url 'user-logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit">Logout</button>
+  </form>
+</nav>

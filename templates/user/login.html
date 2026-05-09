@@ -1,0 +1,21 @@
+{% block title %}
+    Login
+{% endblock title %}
+
+
+{% block content %}
+<div class="">
+    <div class="">
+        <div class="">
+            <h4>Login Page</h4>
+            <hr>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form }}
+                <input class="btn btn-success" type="submit" value="Login">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+    

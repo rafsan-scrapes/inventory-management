@@ -1,0 +1,111 @@
+{% extends 'partials/base.html' %}
+{% block title %} Home {% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+    <div class="table">
+    <div class="table-header">
+      <div class="filter-header">
+        <div class="filter-title">
+          <i class="fa-solid fa-filter"></i><p>Filter Products</p>
+        </div>
+        <button class="add-product">+ Add Product</button>
+      </div>
+      
+      <div class="filter-items">
+        <form name="filter" class="filter-form">
+          <div class="filter-item">
+            <div class="filter-item-top">
+              <label for="product">Product Type: </label>
+              <select id="product" name="Product">
+                <option selected>All</option>
+                <option>Washing Machine</option>
+              </select>
+            </div>
+            <div class="filter-item-bottom">
+              <label for="shelf">Shelf Number:</label>
+              <input type="text" id="shelf" name="Shelf">
+            </div>
+          </div> 
+          <div class="filter-item">
+            <div class="filter-item-top">
+              <label for="brand">Brand Type: </label>
+              <select id="brand" name="brand">
+                <option selected>All</option>
+                <option>Bosch</option>
+              </select>
+            </div>
+            <div class="filter-item-bottom">
+              <label for="column">Column Number:</label>
+              <input type="text" id="column" name="Column">
+            </div>
+          </div> 
+          <div class="filter-item">
+            <div class="filter-item-top">
+              <label for="part">Part Type: </label>
+              <select id="part" name="Part">
+                <option selected>All</option>
+                <option>Drain Hose</option>
+              </select>
+            </div>
+            <div class="filter-item-bottom">
+              <label for="row">Row Number:</label>
+              <input type="text" id="row" name="Row">
+            </div>
+          </div> 
+          <div class="filter-item">
+            <div class="filter-item-top">
+              <input type="submit" class="search-button" value="Search">
+            </div>
+            <div class="filter-item-bottom">
+              <button class="extract-pdf">Extract PDF</button>
+            </div>
+          </div> 
+        </form>
+      </div>        
+    </div>
+    <div class="table-section">
+      <table>
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Image</th>
+            <th>Category</th>
+            <th>Brand</th>
+            <th>Part</th>
+            <th>New Parts</th>
+            <th>Used Parts</th>
+            <th>Size(kg)</th>
+            <th>Model</th>
+            <th>Shelf</th>
+            <th>Column</th>
+            <th>Row</th>
+            <th>Notes</th>
+            <th>Edit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>01</td>
+            <td><img src="washing-machine.jpg" alt="washing-machine"/></td>
+            <td>Washing Machine</td>
+            <td>Bosch</td>
+            <td>Drain Hose</td>
+            <td>5</td>
+            <td>12</td>
+            <td>19</td>
+            <td></td>
+            <td>2</td>
+            <td>1</td>
+            <td>3</td>
+            <td>Rusty Insides</td>
+            <td><button><i class="fa-solid fa-pen-to-square"></i></button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+{% endif %}
+{% endblock content %}
+    

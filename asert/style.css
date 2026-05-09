@@ -1,0 +1,207 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+:root{
+  --bg-dark: oklch(0.1 0 174);
+  --bg: oklch(0.15 0 174);
+  --bg-light: oklch(0.2 0 174);
+  --text: oklch(0.96 0 174);
+  --text-muted: oklch(0.76 0 174);
+  --highlight: oklch(0.5 0 174);
+  --border: oklch(0.4 0 174);
+  --border-muted: oklch(0.3 0 174);
+  --primary: oklch(0.76 0.1 174);
+  --secondary: oklch(0.76 0.1 354);
+  --danger: oklch(0.7 0.05 30);
+  --warning: oklch(0.7 0.05 100);
+  --success: oklch(0.7 0.05 160);
+  --info: oklch(0.7 0.05 260);
+}
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body{
+  background-color: var(--bg-dark);
+  width: 100%;
+  justify-content: center;
+  color: var(--text);
+}
+html{
+  font-size: 12px;
+  font-family: Poppins, Segoe UI, Tahoma, sans-serif;
+}
+
+.table{
+  width: 100%;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filter-title {
+  display:flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.filter-title i {
+  color: var(--primary);
+}
+.filter-title p {
+  font-weight:bold;
+}
+
+/* 1. Tell the container to take up the remaining space in the header */
+.filter-items {
+  flex-grow: 1; 
+  
+}
+
+/* 2. Tell the form to stretch the full width of its parent */
+.filter-items form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%; /* This is the key missing piece */
+}
+
+/* 3. Optional: Add a gap so they don't touch on medium screens */
+.filter-form {
+  gap: 20px;
+}
+
+.filter-item-top, 
+.filter-item-bottom {
+  display: flex;
+  justify-content: flex-end; /* Aligns inputs to the right */
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+/* Ensure the inputs have a consistent width so they line up vertically */
+.filter-item-top select,
+.filter-item-bottom input {
+  width: 150px;
+}
+
+.table-section {
+  height: 500px;
+  overflow: auto;
+}
+button{
+  outline: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.add-new {
+  padding: 10px 20px;
+  color: var(--text);
+  background-color: var(--primary);
+}
+
+table { 
+  width: 100%;
+  table-layout: fixed;
+  min-width: 1000px;
+  /* border-collapse: collapse; */
+}
+
+thead th{
+  position: sticky;
+  top: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-size: 10px;
+
+}
+
+th:nth-child(3){
+  font-size: 8px;
+}
+
+th, td {
+  border-bottom: 1px solid --text-muted;
+  padding: 10px 20px;
+  text-align: center;
+  overflow-wrap: break-word;
+  
+  text-overflow: ellipsis;
+}
+
+td{
+  color: var(--text-muted);
+  font-size:12px;
+  background-color: var(--bg-light);
+}
+
+td:nth-child(3) {
+  font-size: 10px;
+}
+
+td img {
+  height: 60px;
+  width: 60px;
+  object-fit: cover;
+  border-radius: 15px;
+  border: 1px solid --highlight;
+}
+
+td button {
+  background-color: var(--secondary);
+}
+
+
+nav{
+  height: 60px;
+  background-color: var(--bg);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 20px;
+}
+
+#box {
+  color: var(--primary);
+  margin-right: 12px;
+}
+
+.links-container{
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+nav a{
+  height: 100%;
+  padding: 20px 20px;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text);
+}
+nav a:hover{
+  background-color: var(--bg-light);
+}
+nav .home-link{
+  margin-right: auto;
+}
+nav svg{
+  fill: var(--text);
+}
