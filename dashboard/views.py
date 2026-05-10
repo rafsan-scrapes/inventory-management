@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse, HttpResponseBadRequest
 from django.core.exceptions import ValidationError as ModelValidationError
 
 from .models import Part, ProductType, Brand, PartType
 from .forms import PartForm
-
-# ── Index ──────────────────────────────────────────────────────────────────
+from .pdf_utils import generate_parts_pdf
+from datetime import datetime
 
 
 @login_required
@@ -247,3 +247,34 @@ def edit_part(request, pk):
             "posted": {},
         },
     )
+
+
+@login_required
+def export_pdf(request):
+    """
+    POST /export/
+    Expects one or more `part_id` values in POST data (injected by JS).
+    Returns a downloadable PDF of the selected parts.
+    """
+    if request.method != "POST":
+        return redirect("dashboard-index")
+
+    part_ids = request.POST.getlist("part_id")
+
+    if not part_ids:
+        # Nothing selected — send back with a flag so the template can warn
+        return redirect("dashboard-index")
+
+    parts = (
+        Part.objects.filter(id__in=part_ids)
+        .select_related("product_type", "brand", "part_type")
+        .order_by("id")
+    )
+
+    if not parts.exists():
+        return HttpResponseBadRequest("No valid parts found for the given IDs.")
+
+    buffer = generate_parts_pdf(parts)
+    filename = f"parts_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+
+    return FileResponse(buffer, as_attachment=True, filename=filename)

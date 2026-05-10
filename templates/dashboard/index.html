@@ -1,3 +1,15 @@
+<!-- #Add image viewing functionalities
+#IMAGES IN PDF
+# NO NOTES COLUMN NECESSARY IN PDF
+#make it so that you can add or subtract no of parts from home page
+#location ( shelf-row-column)row and column will be characters #edit
+#image will be bigger
+#notes no needed in home page
+#product model number under product name
+#team functionalies create delete edit single team , no needed for members
+#car functionalities
+-->
+
 {% extends 'partials/base.html' %}
 {% load static %}
 
@@ -83,7 +95,7 @@
 
   {# ── Hidden PDF export form (POST with checked part IDs) ──────── #}
   {# TODO: change action to {% url 'dashboard-export' %} once that view exists #}
-  <form id="pdf-form" method="post" action="/export/">
+  <form id="pdf-form" method="post" action="{% url 'export-pdf' %}">
     {% csrf_token %}
     {# JS populates hidden part_id inputs here before submitting #}
   </form>
@@ -102,11 +114,7 @@
           <th>New</th>
           <th>Used</th>
           <th>Size (kg)</th>
-          <th>Model No.</th>
-          <th>Shelf</th>
-          <th>Col</th>
-          <th>Row</th>
-          <th>Notes</th>
+          <th>Part Model No.</th>
           <th>Edit</th>
         </tr>
       </thead>
@@ -131,10 +139,10 @@
           <td class="stock-used">{{ item.total_used }}</td>
           <td>{{ item.size_kg }}</td>
           <td>{{ item.model_number }}</td>
-          <td>{{ item.shelf_number }}</td>
+          <!-- <td>{{ item.shelf_number }}</td>
           <td>{{ item.column_number }}</td>
           <td>{{ item.row_number }}</td>
-          <td class="notes-cell" title="Rusty insides">{{ item.notes }}</td>
+          <td class="notes-cell" title="Rusty insides">{{ item.notes }}</td> -->
           <td>
             {# TODO: change href to {% url 'dashboard-edit' part.pk %} #}
             <a href="{% url 'edit-part' item.id %}" class="btn btn-icon" title="Edit">

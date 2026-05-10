@@ -10,7 +10,7 @@
 {% if user.is_authenticated %}
 <div class="page-content">
 
-  {# ── Page header ──────────────────────────────────────────── #}
+  <!-- page header -->
   <div class="form-page-header">
     <div class="filter-title">
       <i class="fa-solid fa-plus"></i>
@@ -21,7 +21,7 @@
     </a>
   </div>
 
-  {# ── Non-field errors (model-level: stock=0, unique constraint, etc.) ── #}
+  <!-- Non-field errors (model-level: stock=0, unique constraint, etc.) -->
   {% if fk_errors.non_field_errors %}
   <div class="global-errors">
     <i class="fa-solid fa-circle-exclamation"></i>
@@ -33,18 +33,18 @@
   </div>
   {% endif %}
 
-  {# ── Form ─────────────────────────────────────────────────── #}
+  <!-- form -->
   <form class="part-form" method="POST" action="{% url 'add-part' %}"
         enctype="multipart/form-data">
     {% csrf_token %}
 
     <div class="part-form-grid">
 
-      {# ══ LEFT COLUMN — Classification & Image ════════════════ #}
+      <!-- LEFT COLUMN — Classification & Image-->
       <div class="form-section">
         <h3 class="section-label">Classification</h3>
 
-        {# ── Product Type ──────────────────────────────────── #}
+        <!--Product type -->
         <div class="form-group">
           <label class="form-label">
             Product Type <span class="req">*</span>
@@ -76,7 +76,7 @@
           {% endif %}
         </div>
 
-        {# ── Brand ─────────────────────────────────────────── #}
+        <!--Brand name-->
         <div class="form-group">
           <label class="form-label">
             Brand <span class="req">*</span>
@@ -108,7 +108,7 @@
           {% endif %}
         </div>
 
-        {# ── Part Type (cascades from Product Type) ─────────── #}
+        <!--Part type-->
         <div class="form-group">
           <label class="form-label">
             Part Type <span class="req">*</span>
@@ -151,7 +151,7 @@
           {% endif %}
         </div>
 
-        {# ── Image upload ──────────────────────────────────── #}
+        <!--Image Upload-->
         <div class="form-group">
           <label class="form-label" for="{{ form.image.id_for_label }}">
             Image <span class="opt">(optional)</span>
@@ -176,7 +176,7 @@
       </div>{# /LEFT COLUMN #}
 
 
-      {# ══ RIGHT COLUMN — Stock, Location, Details ════════════ #}
+      <!--RIGHT COLUMN - STOCK info: shelf, location, etc-->
       <div class="form-section">
 
         <h3 class="section-label">Stock</h3>
