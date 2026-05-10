@@ -1,19 +1,15 @@
 {% extends 'partials/base.html' %}
-{% block title %}Logout Page{% endblock %}
+
+{% block title %}Logged Out{% endblock %}
 
 {% block content %}
-<div class="">
-    <div class="">
-        <div class="">
-            <h4>Logout Page</h4>
-            <hr>
-            <div class="">
-                <h5>You have been logged out</h5>
-            </div>
-            <a href="{% url 'user-login' %}">Login</a>
-        </div>
-    </div>
+<div class="logout-wrapper">
+  <div class="logout-card">
+    <h2>You've been logged out</h2>
+    <p>Your session has ended.</p>
+    <a href="{% url 'user-login' %}" class="btn btn-primary" style="width:100%; justify-content:center;">
+      Sign back in
+    </a>
+  </div>
 </div>
-
-
-{% endblock %}
+{% endblock content %}

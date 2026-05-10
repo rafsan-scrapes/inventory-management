@@ -1,111 +1,197 @@
 {% extends 'partials/base.html' %}
-{% block title %} Home {% endblock %}
+{% load static %}
+
+{% block title %}Parts Inventory{% endblock %}
 
 {% block content %}
 {% if user.is_authenticated %}
-    <div class="table">
-    <div class="table-header">
-      <div class="filter-header">
-        <div class="filter-title">
-          <i class="fa-solid fa-filter"></i><p>Filter Products</p>
-        </div>
-        <button class="add-product">+ Add Product</button>
-      </div>
-      
-      <div class="filter-items">
-        <form name="filter" class="filter-form">
-          <div class="filter-item">
-            <div class="filter-item-top">
-              <label for="product">Product Type: </label>
-              <select id="product" name="Product">
-                <option selected>All</option>
-                <option>Washing Machine</option>
-              </select>
-            </div>
-            <div class="filter-item-bottom">
-              <label for="shelf">Shelf Number:</label>
-              <input type="text" id="shelf" name="Shelf">
-            </div>
-          </div> 
-          <div class="filter-item">
-            <div class="filter-item-top">
-              <label for="brand">Brand Type: </label>
-              <select id="brand" name="brand">
-                <option selected>All</option>
-                <option>Bosch</option>
-              </select>
-            </div>
-            <div class="filter-item-bottom">
-              <label for="column">Column Number:</label>
-              <input type="text" id="column" name="Column">
-            </div>
-          </div> 
-          <div class="filter-item">
-            <div class="filter-item-top">
-              <label for="part">Part Type: </label>
-              <select id="part" name="Part">
-                <option selected>All</option>
-                <option>Drain Hose</option>
-              </select>
-            </div>
-            <div class="filter-item-bottom">
-              <label for="row">Row Number:</label>
-              <input type="text" id="row" name="Row">
-            </div>
-          </div> 
-          <div class="filter-item">
-            <div class="filter-item-top">
-              <input type="submit" class="search-button" value="Search">
-            </div>
-            <div class="filter-item-bottom">
-              <button class="extract-pdf">Extract PDF</button>
-            </div>
-          </div> 
-        </form>
-      </div>        
+<div class="page-content">
+
+  {# ── Top bar ────────────────────────────────────────────────── #}
+  <div class="top-bar">
+    <div class="filter-title">
+      <i class="fa-solid fa-boxes-stacked"></i>
+      <span>Parts Inventory</span>
     </div>
-    <div class="table-section">
-      <table>
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Image</th>
-            <th>Category</th>
-            <th>Brand</th>
-            <th>Part</th>
-            <th>New Parts</th>
-            <th>Used Parts</th>
-            <th>Size(kg)</th>
-            <th>Model</th>
-            <th>Shelf</th>
-            <th>Column</th>
-            <th>Row</th>
-            <th>Notes</th>
-            <th>Edit</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>01</td>
-            <td><img src="washing-machine.jpg" alt="washing-machine"/></td>
-            <td>Washing Machine</td>
-            <td>Bosch</td>
-            <td>Drain Hose</td>
-            <td>5</td>
-            <td>12</td>
-            <td>19</td>
-            <td></td>
-            <td>2</td>
-            <td>1</td>
-            <td>3</td>
-            <td>Rusty Insides</td>
-            <td><button><i class="fa-solid fa-pen-to-square"></i></button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    {# TODO: change href to {% url 'dashboard-add' %} once that view exists #}
+    <a href="{% url 'add-part' %}" class="btn btn-primary">
+      <i class="fa-solid fa-plus"></i> Add Part
+    </a>
   </div>
-  
+
+  {# ── Filter form (GET — does not interfere with the PDF export POST) ── #}
+  <form class="filter-form" method="get" action="{% url 'dashboard-index' %}">
+    <div class="filter-fields">
+
+      <div class="filter-field">
+        <label for="f-product">Product Type</label>
+        <select id="f-product" name="product_type">
+          <option value="">All</option>
+          {# TODO: replace with {% for pt in product_types %}<option ...> #}
+          <option>Washing Machine</option>
+          <option>Refrigerator</option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label for="f-brand">Brand</label>
+        <select id="f-brand" name="brand">
+          <option value="">All</option>
+          {# TODO: replace with {% for b in brands %}<option ...> #}
+          <option>Bosch</option>
+          <option>LG</option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label for="f-part">Part Type</label>
+        <select id="f-part" name="part_type">
+          <option value="">All</option>
+          {# TODO: replace with {% for p in part_types %}<option ...> #}
+          <option>Drain Hose</option>
+          <option>Motor</option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label for="f-shelf">Shelf</label>
+        <input type="text" id="f-shelf" name="shelf" placeholder="e.g. 2" value="{{ request.GET.shelf }}">
+      </div>
+
+      <div class="filter-field">
+        <label for="f-col">Column</label>
+        <input type="text" id="f-col" name="column" placeholder="e.g. 1" value="{{ request.GET.column }}">
+      </div>
+
+      <div class="filter-field">
+        <label for="f-row">Row</label>
+        <input type="text" id="f-row" name="row" placeholder="e.g. 3" value="{{ request.GET.row }}">
+      </div>
+
+    </div>
+
+    <div class="filter-actions">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-magnifying-glass"></i> Search
+      </button>
+      {# Export button triggers JS — not a submit for this form #}
+      <button type="button" class="btn btn-outline" id="export-btn">
+        <i class="fa-solid fa-file-pdf"></i> Export PDF
+      </button>
+    </div>
+  </form>
+
+  {# ── Hidden PDF export form (POST with checked part IDs) ──────── #}
+  {# TODO: change action to {% url 'dashboard-export' %} once that view exists #}
+  <form id="pdf-form" method="post" action="/export/">
+    {% csrf_token %}
+    {# JS populates hidden part_id inputs here before submitting #}
+  </form>
+
+  {# ── Table ──────────────────────────────────────────────────── #}
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="select-all" title="Select all"></th>
+          <th>ID</th>
+          <th>Image</th>
+          <th>Product Type</th>
+          <th>Brand</th>
+          <th>Part</th>
+          <th>New</th>
+          <th>Used</th>
+          <th>Size (kg)</th>
+          <th>Model No.</th>
+          <th>Shelf</th>
+          <th>Col</th>
+          <th>Row</th>
+          <th>Notes</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        {% for item in items %}
+
+        <tr>
+          <td><input type="checkbox" class="row-check" value="{{item.id}}"></td>
+          <td>{{ item.id }}</td>
+          <td>
+            {% if item.image %}
+              <img src="{{ item.image.url }}" alt="{{ item.product_type }} image" style="width: 50px; height: auto;">
+            {% else %}
+              <span>No Image</span>
+            {% endif %}
+          </td>
+          <td>{{ item.product_type }}</td>
+          <td>{{ item.brand }}</td>
+          <td>{{ item.part_type }}</td>
+          <td class="stock-new">{{ item.total_new }}</td>
+          <td class="stock-used">{{ item.total_used }}</td>
+          <td>{{ item.size_kg }}</td>
+          <td>{{ item.model_number }}</td>
+          <td>{{ item.shelf_number }}</td>
+          <td>{{ item.column_number }}</td>
+          <td>{{ item.row_number }}</td>
+          <td class="notes-cell" title="Rusty insides">{{ item.notes }}</td>
+          <td>
+            {# TODO: change href to {% url 'dashboard-edit' part.pk %} #}
+            <a href="{% url 'edit-part' item.id %}" class="btn btn-icon" title="Edit">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  // ── Select-all checkbox ────────────────────────────────────
+  const selectAll = document.getElementById('select-all');
+  const rowChecks = () => document.querySelectorAll('.row-check');
+
+  selectAll.addEventListener('change', function () {
+    rowChecks().forEach(cb => { cb.checked = this.checked; });
+  });
+
+  document.addEventListener('change', function (e) {
+    if (!e.target.classList.contains('row-check')) return;
+    const all     = rowChecks();
+    const checked = document.querySelectorAll('.row-check:checked');
+    selectAll.indeterminate = checked.length > 0 && checked.length < all.length;
+    selectAll.checked       = checked.length === all.length && all.length > 0;
+  });
+
+  // ── Export PDF ─────────────────────────────────────────────
+  document.getElementById('export-btn').addEventListener('click', function () {
+    const pdfForm = document.getElementById('pdf-form');
+    const checked = document.querySelectorAll('.row-check:checked');
+
+    if (checked.length === 0) {
+      alert('Select at least one part to export.');
+      return;
+    }
+
+    // Remove any previously injected inputs
+    pdfForm.querySelectorAll('input.injected').forEach(el => el.remove());
+
+    // Inject a hidden input per selected part
+    checked.forEach(cb => {
+      const input = document.createElement('input');
+      input.type      = 'hidden';
+      input.name      = 'part_id';
+      input.value     = cb.value;
+      input.className = 'injected';
+      pdfForm.appendChild(input);
+    });
+
+    pdfForm.submit();
+  });
+</script>
 {% endif %}
 {% endblock content %}
-    
