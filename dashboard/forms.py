@@ -1,14 +1,17 @@
 from django import forms
-from .models import PartType, Brand, ProductType, Part
+from .models import Part
 
 
 class PartForm(forms.ModelForm):
+    """
+    Handles all non-FK fields only.
+    product_type, brand, and part_type are resolved by the view's smart-dropdown
+    logic and set on the instance manually before saving — they do NOT belong here.
+    """
+
     class Meta:
         model = Part
         fields = [
-            "product_type",
-            "brand",
-            "part_type",
             "image",
             "total_new",
             "total_used",
@@ -19,3 +22,27 @@ class PartForm(forms.ModelForm):
             "row_number",
             "notes",
         ]
+        widgets = {
+            "image": forms.ClearableFileInput(attrs={"accept": "image/*"}),
+            "total_new": forms.NumberInput(attrs={"min": "0", "placeholder": "0"}),
+            "total_used": forms.NumberInput(attrs={"min": "0", "placeholder": "0"}),
+            "size_kg": forms.NumberInput(
+                attrs={"min": "0", "step": "0.01", "placeholder": "e.g. 5.5"}
+            ),
+            "model_number": forms.TextInput(attrs={"placeholder": "e.g. WAE28468GB"}),
+            "shelf_number": forms.NumberInput(
+                attrs={"min": "1", "placeholder": "e.g. 2"}
+            ),
+            "column_number": forms.NumberInput(
+                attrs={"min": "1", "placeholder": "e.g. 3"}
+            ),
+            "row_number": forms.NumberInput(
+                attrs={"min": "1", "placeholder": "e.g. 1"}
+            ),
+            "notes": forms.Textarea(
+                attrs={
+                    "rows": "3",
+                    "placeholder": "Any additional notes about condition, origin, etc.",
+                }
+            ),
+        }
