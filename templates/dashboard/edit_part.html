@@ -1,0 +1,17 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block title %}Edit Part{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+
+    <h4>Edit Part</h4>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Edit Part">
+    </form>
+
+{% endif %}
+{% endblock content %}
