@@ -55,10 +55,14 @@ def _resolve_fk_fields(post_data):
 
     # ── Product Type ──────────────────────────────────────────────────────
     new_pt_name = post_data.get("new_product_type", "").strip()
+    new_pt_model = post_data.get("new_product_model", "").strip()
     pt_id = post_data.get("product_type_select", "").strip()
 
     if new_pt_name:
-        product_type, _ = ProductType.objects.get_or_create(name=new_pt_name)
+        product_type, _ = ProductType.objects.get_or_create(
+            name=new_pt_name,
+            product_model=new_pt_model if new_pt_model else None,
+        )
     elif pt_id:
         try:
             product_type = ProductType.objects.get(pk=pt_id)
@@ -124,6 +128,12 @@ def part(request):
             part_instance.brand = brand
             part_instance.part_type = part_type
 
+            # Update product_model on the ProductType if provided
+            new_product_model = form.cleaned_data.get("product_model", "").strip()
+            if new_product_model:
+                product_type.product_model = new_product_model
+                product_type.save()
+
             try:
                 part_instance.full_clean()
                 part_instance.save()
@@ -134,9 +144,13 @@ def part(request):
                     for field, msgs in exc.message_dict.items():
                         if field == "__all__":
                             cleaned = [
-                                custom_shelf_msg
-                                if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower()
-                                else msg
+                                (
+                                    custom_shelf_msg
+                                    if "shelf" in msg.lower()
+                                    and "column" in msg.lower()
+                                    and "row" in msg.lower()
+                                    else msg
+                                )
                                 for msg in msgs
                             ]
                             fk_errors["non_field_errors"] = cleaned
@@ -145,9 +159,13 @@ def part(request):
                 else:
                     msgs = list(exc.messages)
                     fk_errors["non_field_errors"] = [
-                        custom_shelf_msg
-                        if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower()
-                        else msg
+                        (
+                            custom_shelf_msg
+                            if "shelf" in msg.lower()
+                            and "column" in msg.lower()
+                            and "row" in msg.lower()
+                            else msg
+                        )
                         for msg in msgs
                     ]
         elif not fk_errors and not form.is_valid():
@@ -174,7 +192,11 @@ def part(request):
 
             for err in form.non_field_errors():
                 err_str = str(err)
-                if "shelf" in err_str.lower() and "column" in err_str.lower() and "row" in err_str.lower():
+                if (
+                    "shelf" in err_str.lower()
+                    and "column" in err_str.lower()
+                    and "row" in err_str.lower()
+                ):
                     all_errors.append(custom_shelf_msg)
                     seen_shelf_error = True
                 else:
@@ -187,7 +209,11 @@ def part(request):
                     for field, msgs in exc.message_dict.items():
                         if field == "__all__":
                             for msg in msgs:
-                                if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower():
+                                if (
+                                    "shelf" in msg.lower()
+                                    and "column" in msg.lower()
+                                    and "row" in msg.lower()
+                                ):
                                     if not seen_shelf_error:
                                         all_errors.append(custom_shelf_msg)
                                         seen_shelf_error = True
@@ -197,7 +223,11 @@ def part(request):
                             fk_errors[field] = msgs
                 else:
                     for msg in exc.messages:
-                        if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower():
+                        if (
+                            "shelf" in msg.lower()
+                            and "column" in msg.lower()
+                            and "row" in msg.lower()
+                        ):
                             if not seen_shelf_error:
                                 all_errors.append(custom_shelf_msg)
                                 seen_shelf_error = True
@@ -271,6 +301,12 @@ def edit_part(request, pk):
             part_instance.brand = brand
             part_instance.part_type = part_type
 
+            # Update product_model on the ProductType if provided
+            new_product_model = form.cleaned_data.get("product_model", "").strip()
+            if new_product_model:
+                item.product_type.product_model = new_product_model
+                item.product_type.save()
+
             try:
                 part_instance.full_clean()
                 part_instance.save()
@@ -282,9 +318,13 @@ def edit_part(request, pk):
                     for field, msgs in exc.message_dict.items():
                         if field == "__all__":
                             cleaned = [
-                                custom_shelf_msg
-                                if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower()
-                                else msg
+                                (
+                                    custom_shelf_msg
+                                    if "shelf" in msg.lower()
+                                    and "column" in msg.lower()
+                                    and "row" in msg.lower()
+                                    else msg
+                                )
                                 for msg in msgs
                             ]
                             fk_errors["non_field_errors"] = cleaned
@@ -293,9 +333,13 @@ def edit_part(request, pk):
                 else:
                     msgs = list(exc.messages)
                     fk_errors["non_field_errors"] = [
-                        custom_shelf_msg
-                        if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower()
-                        else msg
+                        (
+                            custom_shelf_msg
+                            if "shelf" in msg.lower()
+                            and "column" in msg.lower()
+                            and "row" in msg.lower()
+                            else msg
+                        )
                         for msg in msgs
                     ]
         elif not fk_errors and not form.is_valid():
@@ -322,7 +366,11 @@ def edit_part(request, pk):
 
             for err in form.non_field_errors():
                 err_str = str(err)
-                if "shelf" in err_str.lower() and "column" in err_str.lower() and "row" in err_str.lower():
+                if (
+                    "shelf" in err_str.lower()
+                    and "column" in err_str.lower()
+                    and "row" in err_str.lower()
+                ):
                     all_errors.append(custom_shelf_msg)
                     seen_shelf_error = True
                 else:
@@ -335,7 +383,11 @@ def edit_part(request, pk):
                     for field, msgs in exc.message_dict.items():
                         if field == "__all__":
                             for msg in msgs:
-                                if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower():
+                                if (
+                                    "shelf" in msg.lower()
+                                    and "column" in msg.lower()
+                                    and "row" in msg.lower()
+                                ):
                                     if not seen_shelf_error:
                                         all_errors.append(custom_shelf_msg)
                                         seen_shelf_error = True
@@ -345,7 +397,11 @@ def edit_part(request, pk):
                             fk_errors[field] = msgs
                 else:
                     for msg in exc.messages:
-                        if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower():
+                        if (
+                            "shelf" in msg.lower()
+                            and "column" in msg.lower()
+                            and "row" in msg.lower()
+                        ):
                             if not seen_shelf_error:
                                 all_errors.append(custom_shelf_msg)
                                 seen_shelf_error = True
@@ -358,7 +414,7 @@ def edit_part(request, pk):
             request,
             "dashboard/edit_part.html",
             {
-                "form": form,
+                "form": PartForm(request.POST, request.FILES, instance=item, initial={"product_model": item.product_type.product_model or ""}),
                 "item": item,
                 "product_types": product_types,
                 "brands": brands,
@@ -372,7 +428,7 @@ def edit_part(request, pk):
         request,
         "dashboard/edit_part.html",
         {
-            "form": PartForm(instance=item),
+            "form": PartForm(instance=item, initial={"product_model": item.product_type.product_model or ""}),
             "item": item,
             "product_types": product_types,
             "brands": brands,

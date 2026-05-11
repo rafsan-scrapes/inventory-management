@@ -75,7 +75,16 @@
             <span class="field-error">{{ fk_errors.product_type }}</span>
           {% endif %}
         </div>
-
+        <!--Product Model-->
+        <div class="form-group">
+          <label class="form-label">
+            Product Model <span class="opt">(optional)</span>
+          </label>
+          {{ form.product_model }}
+            {% if form.product_model.errors %}
+              {% for e in form.product_model.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+            {% endif %}
+        </div>
         <!--Brand name-->
         <div class="form-group">
           <label class="form-label">

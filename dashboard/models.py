@@ -6,8 +6,11 @@ class ProductType(models.Model):
     """e.g. "Washing Machine", "Refrigerator" """
 
     name = models.CharField(max_length=100, unique=True)
+    product_model = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
+        if self.product_model:
+            return f"{self.name}\n{self.product_model}"
         return self.name
 
 

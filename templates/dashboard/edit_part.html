@@ -45,6 +45,16 @@
         </div>
 
         <div class="form-group">
+          <label for="{{ form.product_model.id_for_label }}" class="form-label">
+            Product Model <span class="opt">(optional)</span>
+          </label>
+          {{ form.product_model }}
+            {% if form.product_model.errors %}
+              {% for e in form.product_model.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="form-group">
           <label for="brand-select" class="form-label">Brand <span class="req">*</span></label>
           <select id="brand-select" name="brand_select">
             <option value="">Select brand</option>
