@@ -64,8 +64,8 @@ class Part(models.Model):
     size_kg = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     model_number = models.CharField(max_length=100, null=True, blank=True)
     shelf_number = models.PositiveIntegerField()
-    column_number = models.PositiveIntegerField()
-    row_number = models.PositiveIntegerField()
+    column_number = models.CharField(max_length=100, null=True)
+    row_number = models.CharField(max_length=100, null=True)
     notes = models.TextField(null=True, blank=True)
 
     class Meta:
