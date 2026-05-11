@@ -124,22 +124,87 @@ def part(request):
             part_instance.brand = brand
             part_instance.part_type = part_type
 
-            # Run full model validation (calls Part.clean() + validate_unique()).
-            # This catches the "both stocks are 0" rule and the part_type ↔
-            # product_type mismatch, as well as unique_together violations.
             try:
                 part_instance.full_clean()
                 part_instance.save()
                 return redirect("dashboard-index")
             except ModelValidationError as exc:
+                custom_shelf_msg = "A part with this Shelf Number, Row Number and Column Number already exists."
                 if hasattr(exc, "message_dict"):
                     for field, msgs in exc.message_dict.items():
                         if field == "__all__":
-                            fk_errors["non_field_errors"] = msgs
+                            cleaned = [
+                                custom_shelf_msg
+                                if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower()
+                                else msg
+                                for msg in msgs
+                            ]
+                            fk_errors["non_field_errors"] = cleaned
                         else:
                             fk_errors[field] = msgs
                 else:
-                    fk_errors["non_field_errors"] = exc.messages
+                    msgs = list(exc.messages)
+                    fk_errors["non_field_errors"] = [
+                        custom_shelf_msg
+                        if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower()
+                        else msg
+                        for msg in msgs
+                    ]
+        elif not fk_errors and not form.is_valid():
+            # Form is invalid — build instance with FK fields set directly,
+            # then run full_clean() to catch any constraints the form missed.
+            part_instance = Part(
+                product_type=product_type,
+                brand=brand,
+                part_type=part_type,
+                image=form.cleaned_data.get("image"),
+                total_new=form.cleaned_data.get("total_new", 0),
+                total_used=form.cleaned_data.get("total_used", 0),
+                size_kg=form.cleaned_data.get("size_kg"),
+                model_number=form.cleaned_data.get("model_number"),
+                shelf_number=form.cleaned_data.get("shelf_number"),
+                column_number=form.cleaned_data.get("column_number"),
+                row_number=form.cleaned_data.get("row_number"),
+                notes=form.cleaned_data.get("notes"),
+            )
+
+            custom_shelf_msg = "A part with this Shelf Number, Row Number and Column Number already exists."
+            all_errors = []
+            seen_shelf_error = False
+
+            for err in form.non_field_errors():
+                err_str = str(err)
+                if "shelf" in err_str.lower() and "column" in err_str.lower() and "row" in err_str.lower():
+                    all_errors.append(custom_shelf_msg)
+                    seen_shelf_error = True
+                else:
+                    all_errors.append(err_str)
+
+            try:
+                part_instance.full_clean()
+            except ModelValidationError as exc:
+                if hasattr(exc, "message_dict"):
+                    for field, msgs in exc.message_dict.items():
+                        if field == "__all__":
+                            for msg in msgs:
+                                if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower():
+                                    if not seen_shelf_error:
+                                        all_errors.append(custom_shelf_msg)
+                                        seen_shelf_error = True
+                                else:
+                                    all_errors.append(msg)
+                        else:
+                            fk_errors[field] = msgs
+                else:
+                    for msg in exc.messages:
+                        if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower():
+                            if not seen_shelf_error:
+                                all_errors.append(custom_shelf_msg)
+                                seen_shelf_error = True
+                        else:
+                            all_errors.append(msg)
+
+            fk_errors["non_field_errors"] = all_errors
 
         # Re-populate part-type dropdown for the selected product type so the
         # user doesn't lose their selection on error re-render.
@@ -212,13 +277,82 @@ def edit_part(request, pk):
                 return redirect("dashboard-index")
 
             except ModelValidationError as exc:
+                custom_shelf_msg = "A part with this Shelf Number, Row Number and Column Number already exists."
                 if hasattr(exc, "message_dict"):
                     for field, msgs in exc.message_dict.items():
-                        fk_errors[
-                            "non_field_errors" if field == "__all__" else field
-                        ] = msgs
+                        if field == "__all__":
+                            cleaned = [
+                                custom_shelf_msg
+                                if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower()
+                                else msg
+                                for msg in msgs
+                            ]
+                            fk_errors["non_field_errors"] = cleaned
+                        else:
+                            fk_errors[field] = msgs
                 else:
-                    fk_errors["non_field_errors"] = exc.messages
+                    msgs = list(exc.messages)
+                    fk_errors["non_field_errors"] = [
+                        custom_shelf_msg
+                        if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower()
+                        else msg
+                        for msg in msgs
+                    ]
+        elif not fk_errors and not form.is_valid():
+            # Form is invalid — build instance with FK fields set directly,
+            # then run full_clean() to catch any constraints the form missed.
+            part_instance = Part(
+                product_type=item.product_type,
+                brand=brand,
+                part_type=part_type,
+                image=form.cleaned_data.get("image"),
+                total_new=form.cleaned_data.get("total_new", 0),
+                total_used=form.cleaned_data.get("total_used", 0),
+                size_kg=form.cleaned_data.get("size_kg"),
+                model_number=form.cleaned_data.get("model_number"),
+                shelf_number=form.cleaned_data.get("shelf_number"),
+                column_number=form.cleaned_data.get("column_number"),
+                row_number=form.cleaned_data.get("row_number"),
+                notes=form.cleaned_data.get("notes"),
+            )
+
+            custom_shelf_msg = "A part with this Shelf Number, Row Number and Column Number already exists."
+            all_errors = []
+            seen_shelf_error = False
+
+            for err in form.non_field_errors():
+                err_str = str(err)
+                if "shelf" in err_str.lower() and "column" in err_str.lower() and "row" in err_str.lower():
+                    all_errors.append(custom_shelf_msg)
+                    seen_shelf_error = True
+                else:
+                    all_errors.append(err_str)
+
+            try:
+                part_instance.full_clean()
+            except ModelValidationError as exc:
+                if hasattr(exc, "message_dict"):
+                    for field, msgs in exc.message_dict.items():
+                        if field == "__all__":
+                            for msg in msgs:
+                                if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower():
+                                    if not seen_shelf_error:
+                                        all_errors.append(custom_shelf_msg)
+                                        seen_shelf_error = True
+                                else:
+                                    all_errors.append(msg)
+                        else:
+                            fk_errors[field] = msgs
+                else:
+                    for msg in exc.messages:
+                        if "shelf" in msg.lower() and "column" in msg.lower() and "row" in msg.lower():
+                            if not seen_shelf_error:
+                                all_errors.append(custom_shelf_msg)
+                                seen_shelf_error = True
+                        else:
+                            all_errors.append(msg)
+
+            fk_errors["non_field_errors"] = all_errors
 
         return render(
             request,
