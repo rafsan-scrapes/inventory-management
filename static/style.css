@@ -377,20 +377,20 @@ tbody tr:last-child td { border-bottom: none; }
 
 /* Column widths */
 table th:nth-child(1),  table td:nth-child(1)  { width: 16px;  } /* checkbox */
-table th:nth-child(2),  table td:nth-child(2)  { width: 46px;  } /* id */
-table th:nth-child(3),  table td:nth-child(3)  { width: 76px;  } /* image */
-table th:nth-child(4),  table td:nth-child(4)  { width: 120px; } /* category */
-table th:nth-child(5),  table td:nth-child(5)  { width: 90px;  } /* brand */
+table th:nth-child(2),  table td:nth-child(2)  { width: 24px;  } /* id */
+table th:nth-child(3),  table td:nth-child(3)  { width: 120px;  } /* image */
+table th:nth-child(4),  table td:nth-child(4)  { width: 100px; } /* category */
+table th:nth-child(5),  table td:nth-child(5)  { width: 60px;  } /* brand */
 table th:nth-child(6),  table td:nth-child(6)  { width: 100px; } /* part */
-table th:nth-child(7),  table td:nth-child(7)  { width: 52px;  } /* new */
-table th:nth-child(8),  table td:nth-child(8)  { width: 52px;  } /* used */
+table th:nth-child(7),  table td:nth-child(7)  { width: 120px;  } /* new */
+table th:nth-child(8),  table td:nth-child(8)  { width: 120px;  } /* used */
 table th:nth-child(9),  table td:nth-child(9)  { width: 68px;  } /* size */
-table th:nth-child(10), table td:nth-child(10) { width: 100px; } /* model */
-table th:nth-child(11), table td:nth-child(11) { width: 52px;  } /* shelf */
-table th:nth-child(12), table td:nth-child(12) { width: 44px;  } /* col */
-table th:nth-child(13), table td:nth-child(13) { width: 44px;  } /* row */
-table th:nth-child(14), table td:nth-child(14) {width : 40px; }              /* notes — grows */
-table th:nth-child(15), table td:nth-child(15) { width: 52px;  } /* edit */
+table th:nth-child(10), table td:nth-child(10) { width: 80px; } /* model */
+/* table th:nth-child(11), table td:nth-child(11) { width: 52px;  } shelf */
+/* table th:nth-child(12), table td:nth-child(12) { width: 44px;  } col */
+/* table th:nth-child(13), table td:nth-child(13) { width: 44px;  } row */
+/* table th:nth-child(14), table td:nth-child(14) {width : 40px; }              notes — grows */
+table th:nth-child(11), table td:nth-child(15) { width: 52px;  } /* edit */
 
 /* Stock counts — subtle color hints */
 td.stock-new  { color: var(--success); }
@@ -617,6 +617,56 @@ select:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* ── Stock adjuster (+/−) ─────────────────────────────────────────────── */
+.stock-adjuster {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.adj-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 4px;
+  background-color: var(--bg-light);
+  color: var(--text-muted);
+  border: 1px solid var(--border-muted);
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s, opacity 0.12s;
+  flex-shrink: 0;
+}
+
+.adj-btn:hover:not(:disabled):not(.adj-btn--disabled) {
+  background-color: var(--primary);
+  color: var(--bg-dark);
+  border-color: var(--primary);
+}
+
+.adj-btn:disabled,
+.adj-btn--disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.stock-val {
+  min-width: 24px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Keep the colour hints on the parent td */
+td.stock-new .stock-val  { color: var(--success); }
+td.stock-used .stock-val { color: var(--warning); }
 
 /* ── Scrollbar ──────────────────────────────────────────────── */
 ::-webkit-scrollbar       { width: 6px; height: 6px; }

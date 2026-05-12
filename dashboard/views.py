@@ -398,7 +398,12 @@ def edit_part(request, pk):
             request,
             "dashboard/edit_part.html",
             {
-                "form": PartForm(request.POST, request.FILES, instance=item, initial={"product_model": item.product_model or ""}),
+                "form": PartForm(
+                    request.POST,
+                    request.FILES,
+                    instance=item,
+                    initial={"product_model": item.product_model or ""},
+                ),
                 "item": item,
                 "product_types": product_types,
                 "brands": brands,
@@ -412,7 +417,9 @@ def edit_part(request, pk):
         request,
         "dashboard/edit_part.html",
         {
-            "form": PartForm(instance=item, initial={"product_model": item.product_model or ""}),
+            "form": PartForm(
+                instance=item, initial={"product_model": item.product_model or ""}
+            ),
             "item": item,
             "product_types": product_types,
             "brands": brands,
@@ -452,3 +459,30 @@ def export_pdf(request):
     filename = f"parts_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
 
     return FileResponse(buffer, as_attachment=True, filename=filename)
+
+
+@login_required
+def adjust_stock(request, pk):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    field = request.POST.get("field", "")
+    delta_raw = request.POST.get("delta", "")
+
+    if field not in ("total_new", "total_used"):
+        return JsonResponse({"error": "Invalid field"}, status=400)
+
+    try:
+        delta = int(delta_raw)
+        if delta not in (1, -1):
+            raise ValueError
+    except (ValueError, TypeError):
+        return JsonResponse({"error": "Invalid delta"}, status=400)
+
+    part = get_object_or_404(Part, pk=pk)
+    current = getattr(part, field)
+    new_value = max(0, current + delta)
+
+    Part.objects.filter(pk=pk).update(**{field: new_value})
+
+    return JsonResponse({"value": new_value, "field": field, "pk": pk})

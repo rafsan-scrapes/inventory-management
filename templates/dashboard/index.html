@@ -135,8 +135,36 @@
           <td>{{ item.product_type }}</td>
           <td>{{ item.brand }}</td>
           <td>{{ item.part_type }}</td>
-          <td class="stock-new">{{ item.total_new }}</td>
-          <td class="stock-used">{{ item.total_used }}</td>
+          <td class="stock-new">
+            <div class="stock-adjuster">
+              <button class="adj-btn"
+                      data-pk="{{ item.id }}"
+                      data-field="total_new"
+                      data-delta="-1"
+                      title="Remove one new unit">−</button>
+              <span class="stock-val" id="stock-new-{{ item.id }}">{{ item.total_new }}</span>
+              <button class="adj-btn"
+                      data-pk="{{ item.id }}"
+                      data-field="total_new"
+                      data-delta="1"
+                      title="Add one new unit">+</button>
+            </div>
+          </td>
+          <td class="stock-used">
+            <div class="stock-adjuster">
+              <button class="adj-btn"
+                      data-pk="{{ item.id }}"
+                      data-field="total_used"
+                      data-delta="-1"
+                      title="Remove one used unit">−</button>
+              <span class="stock-val" id="stock-used-{{ item.id }}">{{ item.total_used }}</span>
+              <button class="adj-btn"
+                      data-pk="{{ item.id }}"
+                      data-field="total_used"
+                      data-delta="1"
+                      title="Add one used unit">+</button>
+            </div>
+          </td>
           <td>{{ item.size_kg }}</td>
           <td>{{ item.model_number }}</td>
           <!-- <td>{{ item.shelf_number }}</td>
@@ -159,7 +187,7 @@
 </div>
 
 <script>
-  // ── Select-all checkbox ────────────────────────────────────
+  // ── Select-all checkbox ────────────────────────────────────────────────
   const selectAll = document.getElementById('select-all');
   const rowChecks = () => document.querySelectorAll('.row-check');
 
@@ -175,7 +203,7 @@
     selectAll.checked       = checked.length === all.length && all.length > 0;
   });
 
-  // ── Export PDF ─────────────────────────────────────────────
+  // ── Export PDF ─────────────────────────────────────────────────────────
   document.getElementById('export-btn').addEventListener('click', function () {
     const pdfForm = document.getElementById('pdf-form');
     const checked = document.querySelectorAll('.row-check:checked');
@@ -185,10 +213,8 @@
       return;
     }
 
-    // Remove any previously injected inputs
     pdfForm.querySelectorAll('input.injected').forEach(el => el.remove());
 
-    // Inject a hidden input per selected part
     checked.forEach(cb => {
       const input = document.createElement('input');
       input.type      = 'hidden';
@@ -199,6 +225,63 @@
     });
 
     pdfForm.submit();
+  });
+
+  // ── Stock adjust (+/−) ─────────────────────────────────────────────────
+  const CSRF = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.adj-btn');
+    if (!btn) return;
+
+    const pk    = btn.dataset.pk;
+    const field = btn.dataset.field;
+    const delta = btn.dataset.delta;
+
+    // Optimistic UI: disable both buttons for this row while request is in flight
+    const adjuster = btn.closest('.stock-adjuster');
+    const allBtns  = adjuster.querySelectorAll('.adj-btn');
+    allBtns.forEach(b => b.disabled = true);
+
+    fetch(`/part/${pk}/adjust/`, {
+      method:  'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken':  CSRF,
+      },
+      body: `field=${field}&delta=${delta}`,
+    })
+    .then(res => {
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+      // Update the visible number
+      const spanId = `stock-${field === 'total_new' ? 'new' : 'used'}-${pk}`;
+      const span   = document.getElementById(spanId);
+      if (span) span.textContent = data.value;
+
+      // Dim the − button if value is now 0 (can't go lower)
+      const minusBtn = adjuster.querySelector('[data-delta="-1"]');
+      if (minusBtn) minusBtn.classList.toggle('adj-btn--disabled', data.value === 0);
+    })
+    .catch(() => {
+      alert('Could not update stock. Please refresh and try again.');
+    })
+    .finally(() => {
+      allBtns.forEach(b => b.disabled = false);
+    });
+  });
+
+  // On page load: dim any − buttons whose current value is already 0
+  document.querySelectorAll('.adj-btn[data-delta="-1"]').forEach(btn => {
+    const pk    = btn.dataset.pk;
+    const field = btn.dataset.field;
+    const spanId = `stock-${field === 'total_new' ? 'new' : 'used'}-${pk}`;
+    const span   = document.getElementById(spanId);
+    if (span && parseInt(span.textContent, 10) === 0) {
+      btn.classList.add('adj-btn--disabled');
+    }
   });
 </script>
 {% endif %}
