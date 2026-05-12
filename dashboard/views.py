@@ -55,14 +55,10 @@ def _resolve_fk_fields(post_data):
 
     # ── Product Type ──────────────────────────────────────────────────────
     new_pt_name = post_data.get("new_product_type", "").strip()
-    new_pt_model = post_data.get("new_product_model", "").strip()
     pt_id = post_data.get("product_type_select", "").strip()
 
     if new_pt_name:
-        product_type, _ = ProductType.objects.get_or_create(
-            name=new_pt_name,
-            product_model=new_pt_model if new_pt_model else None,
-        )
+        product_type, _ = ProductType.objects.get_or_create(name=new_pt_name)
     elif pt_id:
         try:
             product_type = ProductType.objects.get(pk=pt_id)
@@ -127,12 +123,6 @@ def part(request):
             part_instance.product_type = product_type
             part_instance.brand = brand
             part_instance.part_type = part_type
-
-            # Update product_model on the ProductType if provided
-            new_product_model = form.cleaned_data.get("product_model", "").strip()
-            if new_product_model:
-                product_type.product_model = new_product_model
-                product_type.save()
 
             try:
                 part_instance.full_clean()
@@ -301,12 +291,6 @@ def edit_part(request, pk):
             part_instance.brand = brand
             part_instance.part_type = part_type
 
-            # Update product_model on the ProductType if provided
-            new_product_model = form.cleaned_data.get("product_model", "").strip()
-            if new_product_model:
-                item.product_type.product_model = new_product_model
-                item.product_type.save()
-
             try:
                 part_instance.full_clean()
                 part_instance.save()
@@ -414,7 +398,7 @@ def edit_part(request, pk):
             request,
             "dashboard/edit_part.html",
             {
-                "form": PartForm(request.POST, request.FILES, instance=item, initial={"product_model": item.product_type.product_model or ""}),
+                "form": PartForm(request.POST, request.FILES, instance=item, initial={"product_model": item.product_model or ""}),
                 "item": item,
                 "product_types": product_types,
                 "brands": brands,
@@ -428,7 +412,7 @@ def edit_part(request, pk):
         request,
         "dashboard/edit_part.html",
         {
-            "form": PartForm(instance=item, initial={"product_model": item.product_type.product_model or ""}),
+            "form": PartForm(instance=item, initial={"product_model": item.product_model or ""}),
             "item": item,
             "product_types": product_types,
             "brands": brands,

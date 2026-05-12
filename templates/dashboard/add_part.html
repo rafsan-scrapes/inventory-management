@@ -341,8 +341,23 @@
   }
 
   async function fetchPartTypes(productTypeId) {
-    if (!productTypeId || productTypeId === '__new__') {
+    if (!productTypeId) {
       setPartTypeLoading('— Enter product type first —');
+      return;
+    }
+
+    // User selected "__new__" for product type — still enable part type dropdown
+    // so they can create a new part type for the new product type they're about to add
+    if (productTypeId === '__new__') {
+      partTypeSelect.innerHTML =
+        '<option value="">— Select part type —</option>';
+      const addNew = document.createElement('option');
+      addNew.value = '__new__';
+      addNew.textContent = '＋ Add new type…';
+      partTypeSelect.appendChild(addNew);
+      partTypeSelect.disabled = false;
+      newPartTypeInput.style.display = 'none';
+      newPartTypeInput.value = '';
       return;
     }
 

@@ -6,11 +6,8 @@ class ProductType(models.Model):
     """e.g. "Washing Machine", "Refrigerator" """
 
     name = models.CharField(max_length=100, unique=True)
-    product_model = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
-        if self.product_model:
-            return f"{self.name}\n{self.product_model}"
         return self.name
 
 
@@ -62,6 +59,7 @@ class Part(models.Model):
         related_name="parts",
     )
     image = models.ImageField(upload_to="parts/", null=True, blank=True)
+    product_model = models.CharField(max_length=100, null=True, blank=True)
     total_new = models.PositiveIntegerField(default=0)
     total_used = models.PositiveIntegerField(default=0)
     size_kg = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
