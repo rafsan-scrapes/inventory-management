@@ -12,7 +12,37 @@ from datetime import datetime
 @login_required
 def index(request):
     items = Part.objects.select_related("product_type", "brand", "part_type").all()
-    context = {"items": items}
+
+    # Apply filters from GET parameters
+    product_type_id = request.GET.get("product_type", "")
+    brand_id = request.GET.get("brand", "")
+    part_type_id = request.GET.get("part_type", "")
+    shelf = request.GET.get("shelf", "")
+    column = request.GET.get("column", "")
+    row = request.GET.get("row", "")
+
+    if product_type_id:
+        items = items.filter(product_type_id=product_type_id)
+    if brand_id:
+        items = items.filter(brand_id=brand_id)
+    if part_type_id:
+        items = items.filter(part_type_id=part_type_id)
+    if shelf:
+        items = items.filter(shelf_number=shelf)
+    if column:
+        items = items.filter(column_number=column)
+    if row:
+        items = items.filter(row_number=row)
+
+    # Get filter options for the form
+    product_types = ProductType.objects.all().order_by("name")
+    brands = Brand.objects.all().order_by("name")
+
+    context = {
+        "items": items,
+        "product_types": product_types,
+        "brands": brands,
+    }
     return render(request, "dashboard/index.html", context=context)
 
 

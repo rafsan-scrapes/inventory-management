@@ -49,9 +49,9 @@
         <label for="f-product">Product Type</label>
         <select id="f-product" name="product_type">
           <option value="">All</option>
-          {# TODO: replace with {% for pt in product_types %}<option ...> #}
-          <option>Washing Machine</option>
-          <option>Refrigerator</option>
+          {% for pt in product_types %}
+          <option value="{{ pt.id }}" {% if request.GET.product_type|stringformat:"s" == pt.id|stringformat:"s" %}selected{% endif %}>{{ pt.name }}</option>
+          {% endfor %}
         </select>
       </div>
 
@@ -59,19 +59,16 @@
         <label for="f-brand">Brand</label>
         <select id="f-brand" name="brand">
           <option value="">All</option>
-          {# TODO: replace with {% for b in brands %}<option ...> #}
-          <option>Bosch</option>
-          <option>LG</option>
+          {% for b in brands %}
+          <option value="{{ b.id }}" {% if request.GET.brand|stringformat:"s" == b.id|stringformat:"s" %}selected{% endif %}>{{ b.name }}</option>
+          {% endfor %}
         </select>
       </div>
 
       <div class="filter-field">
         <label for="f-part">Part Type</label>
-        <select id="f-part" name="part_type">
+        <select id="f-part" name="part_type" data-preselected="{{ request.GET.part_type|default:'' }}">
           <option value="">All</option>
-          {# TODO: replace with {% for p in part_types %}<option ...> #}
-          <option>Drain Hose</option>
-          <option>Motor</option>
         </select>
       </div>
 
@@ -303,6 +300,54 @@
       btn.classList.add('adj-btn--disabled');
     }
   });
+
+  // ── Filter: Part Type cascade ───────────────────────────────────────────
+  (function() {
+    const productSelect = document.getElementById('f-product');
+    const partSelect = document.getElementById('f-part');
+    const preselectedPartType = partSelect.dataset.preselected;
+
+    function loadPartTypes(productTypeId, callback) {
+      // Clear existing options except "All"
+      partSelect.innerHTML = '<option value="">All</option>';
+
+      if (!productTypeId) {
+        callback();
+        return;
+      }
+
+      fetch('/get-part-types/?product_type_id=' + encodeURIComponent(productTypeId))
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          data.part_types.forEach(function(pt) {
+            const opt = document.createElement('option');
+            opt.value = pt.id;
+            opt.textContent = pt.name;
+            partSelect.appendChild(opt);
+          });
+          callback();
+        });
+    }
+
+    // Load part types on page load if a product type is selected
+    const initialProductId = productSelect.value;
+    if (initialProductId) {
+      loadPartTypes(initialProductId, function() {
+        if (preselectedPartType) {
+          partSelect.value = preselectedPartType;
+        }
+      });
+    } else if (preselectedPartType) {
+      // If product type is not selected but part_type is, load all part types
+      // (this shouldn't normally happen, but handle it gracefully)
+      loadPartTypes('', function() {});
+    }
+
+    // Reload part types when product type changes
+    productSelect.addEventListener('change', function() {
+      loadPartTypes(this.value, function() {});
+    });
+  })();
 
 
 // ── Lightbox ───────────────────────────────────────────────────────────
