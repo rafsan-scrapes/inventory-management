@@ -18,7 +18,17 @@
 {% block content %}
 {% if user.is_authenticated %}
 <div class="page-content">
-
+  
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+    <button class="lightbox-close" id="lightbox-close" aria-label="Close">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <div class="lightbox-backdrop" id="lightbox-backdrop"></div>
+    <div class="lightbox-content">
+      <img id="lightbox-img" src="" alt="">
+      <p id="lightbox-caption" class="lightbox-caption"></p>
+    </div>
+  </div>
   {# ── Top bar ────────────────────────────────────────────────── #}
   <div class="top-bar">
     <div class="filter-title">
@@ -72,12 +82,12 @@
 
       <div class="filter-field">
         <label for="f-col">Column</label>
-        <input type="text" id="f-col" name="column" placeholder="e.g. 1" value="{{ request.GET.column }}">
+        <input type="text" id="f-col" name="column" placeholder="e.g. 1, left" value="{{ request.GET.column }}">
       </div>
 
       <div class="filter-field">
         <label for="f-row">Row</label>
-        <input type="text" id="f-row" name="row" placeholder="e.g. 3" value="{{ request.GET.row }}">
+        <input type="text" id="f-row" name="row" placeholder="e.g. 3, right" value="{{ request.GET.row }}">
       </div>
 
     </div>
@@ -93,8 +103,6 @@
     </div>
   </form>
 
-  {# ── Hidden PDF export form (POST with checked part IDs) ──────── #}
-  {# TODO: change action to {% url 'dashboard-export' %} once that view exists #}
   <form id="pdf-form" method="post" action="{% url 'export-pdf' %}">
     {% csrf_token %}
     {# JS populates hidden part_id inputs here before submitting #}
@@ -125,14 +133,26 @@
         <tr>
           <td><input type="checkbox" class="row-check" value="{{item.id}}"></td>
           <td>{{ item.id }}</td>
+
           <td>
             {% if item.image %}
-              <img src="{{ item.image.url }}" alt="{{ item.product_type }} image" style="width: 50px; height: auto;">
+              <img src="{{ item.image.url }}"
+                  alt="{{ item.product_type }} image"
+                  class="thumb"
+                  data-src="{{ item.image.url }}"
+                  data-alt="{{ item.product_type }} — {{ item.brand }} — {{ item.part_type }}"
+                  title="Click to enlarge">
             {% else %}
-              <span>No Image</span>
+              <span class="no-img">—</span>
             {% endif %}
           </td>
-          <td>{{ item.product_type }}</td>
+
+          <td>{{ item.product_type }}
+          {% if item.product_model != None %}
+            <br>
+            ({{ item.product_model }})
+          {% endif %}
+            </td>
           <td>{{ item.brand }}</td>
           <td>{{ item.part_type }}</td>
           <td class="stock-new">
@@ -283,6 +303,47 @@
       btn.classList.add('adj-btn--disabled');
     }
   });
+
+
+// ── Lightbox ───────────────────────────────────────────────────────────
+const lightbox        = document.getElementById('lightbox');
+const lightboxImg     = document.getElementById('lightbox-img');
+const lightboxCaption = document.getElementById('lightbox-caption');
+const lightboxClose   = document.getElementById('lightbox-close');
+const lightboxBdrop   = document.getElementById('lightbox-backdrop');
+
+function openLightbox(src, alt) {
+  lightboxImg.src         = src;
+  lightboxImg.alt         = alt;
+  lightboxCaption.textContent = alt;
+  lightbox.classList.add('lightbox--open');
+  document.body.style.overflow = 'hidden';   // prevent background scroll
+  lightboxClose.focus();
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('lightbox--open');
+  document.body.style.overflow = '';
+  lightboxImg.src = '';                       // free memory
+}
+
+// Open on thumbnail click
+document.addEventListener('click', function (e) {
+  const thumb = e.target.closest('.thumb');
+  if (!thumb) return;
+  openLightbox(thumb.dataset.src, thumb.dataset.alt);
+});
+
+// Close on × button or backdrop click
+lightboxClose.addEventListener('click', closeLightbox);
+lightboxBdrop.addEventListener('click', closeLightbox);
+
+// Close on Escape key
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && lightbox.classList.contains('lightbox--open')) {
+    closeLightbox();
+  }
+});
 </script>
 {% endif %}
 {% endblock content %}

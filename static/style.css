@@ -402,15 +402,105 @@ td.notes-cell {
   text-overflow: ellipsis;
 }
 
-td img {
+td img.thumb {
   height: 120px;
-  width: 120px;
+  width:  120px;
   object-fit: cover;
   border-radius: 8px;
-  border: 1px solid var(--highlight);   /* FIXED: was missing var() */
+  border: 1px solid var(--highlight);
   display: block;
   margin: 0 auto;
+  cursor: zoom-in;
+  transition: opacity 0.15s, transform 0.15s;
 }
+td img.thumb:hover {
+  opacity: 0.85;
+  transform: scale(1.04);
+}
+
+.no-img {
+  color: var(--highlight);
+  font-size: 1.1rem;
+}
+
+/* ── Lightbox overlay ─────────────────────────────────────────────────── */
+.lightbox {
+  display: none;           /* hidden by default */
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox--open {
+  display: flex;
+}
+
+/* Semi-transparent backdrop */
+.lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Image + caption sit above the backdrop */
+.lightbox-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  max-width: min(92vw, 900px);
+  max-height: 92vh;
+}
+
+#lightbox-img {
+  max-width:  100%;
+  max-height: calc(92vh - 60px);   /* leave room for caption */
+  object-fit: contain;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+
+.lightbox-caption {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-align: center;
+  max-width: 80%;
+}
+
+/* Close button — top-right corner, above everything */
+.lightbox-close {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-light);
+  border: 1px solid var(--border-muted);
+  color: var(--text);
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  padding: 0;
+}
+.lightbox-close:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+.lightbox-close:active { transform: scale(0.92); }
 
 /* ====================================================================
    APPEND THESE RULES TO style.css
