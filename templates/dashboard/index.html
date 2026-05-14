@@ -35,6 +35,30 @@ list all available part types in according to values
       <p id="lightbox-caption" class="lightbox-caption"></p>
     </div>
   </div>
+
+  {# ── Event Notification Messages (3-second display) ── #}
+  {% if event_notification %}
+  <div id="event-notification" class="notification notification--{{ event_notification.type }}">
+    {{ event_notification.message }}
+  </div>
+  {% endif %}
+
+  {# ── Stock Status Summary Messages (persistent) ── #}
+  {% if out_of_stock_parts or low_stock_parts %}
+  <div class="stock-status-messages">
+    {% if out_of_stock_parts %}
+    <div class="notification notification--danger">
+      {% for part in out_of_stock_parts %}{{ part.part_display }}{% if not forloop.last %}, {% endif %}{% endfor %} {% if out_of_stock_parts|length == 1 %}is{% else %}are{% endif %} out of stock
+    </div>
+    {% endif %}
+    {% if low_stock_parts %}
+    <div class="notification notification--warning">
+      {% for part in low_stock_parts %}{{ part.part_display }}{% if not forloop.last %}, {% endif %}{% endfor %} {% if low_stock_parts|length == 1 %}is{% else %}are{% endif %} low in stock
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
   {# ── Top bar ────────────────────────────────────────────────── #}
   <div class="top-bar">
     <div class="filter-title">
@@ -357,6 +381,21 @@ function applyZeroDimming() {
     }
   });
 }
+
+// ── Auto-hide event notifications after 3 seconds ──────────────────
+(function() {
+  const eventNotif = document.getElementById('event-notification');
+  if (eventNotif) {
+    setTimeout(function() {
+      eventNotif.style.transition = 'opacity 0.3s ease';
+      eventNotif.style.opacity = '0';
+      setTimeout(function() {
+        eventNotif.style.display = 'none';
+      }, 300);
+    }, 3000);
+  }
+})();
+
 applyZeroDimming();
 
   // ── Filter: Part Type cascade ───────────────────────────────────────────

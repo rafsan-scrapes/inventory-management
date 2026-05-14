@@ -38,10 +38,33 @@ def index(request):
     product_types = ProductType.objects.all().order_by("name")
     brands = Brand.objects.all().order_by("name")
 
+    # Compute stock status for all parts (unfiltered for summary display)
+    all_parts = Part.objects.select_related("product_type", "brand", "part_type").all()
+    out_of_stock_parts = []
+    low_stock_parts = []
+
+    for part in all_parts:
+        total = part.total_new + part.total_used
+        display_name = f"{part.part_type.name}-{part.product_type.name}-{part.brand.name}"
+        part_display = {'pk': part.pk, 'part_display': display_name}
+
+        if total == 0:
+            out_of_stock_parts.append(part_display)
+        elif total <= 2:
+            low_stock_parts.append(part_display)
+
+    # Get and clear event notification from session
+    event_notification = None
+    if 'event_notification' in request.session:
+        event_notification = request.session.pop('event_notification')
+
     context = {
         "items": items,
         "product_types": product_types,
         "brands": brands,
+        "out_of_stock_parts": out_of_stock_parts,
+        "low_stock_parts": low_stock_parts,
+        "event_notification": event_notification,
     }
     return render(request, "dashboard/index.html", context=context)
 
@@ -157,6 +180,12 @@ def part(request):
             try:
                 part_instance.full_clean()
                 part_instance.save()
+                # Store success message in session
+                part_name = f"{part_type.name}-{product_type.name}-{brand.name}"
+                request.session['event_notification'] = {
+                    'message': f"{part_name} has been added successfully!",
+                    'type': 'success'
+                }
                 return redirect("dashboard-index")
             except ModelValidationError as exc:
                 custom_shelf_msg = "A part with this Shelf Number, Row Number and Column Number already exists."
@@ -512,6 +541,21 @@ def adjust_stock(request, pk):
     part = get_object_or_404(Part, pk=pk)
     current = getattr(part, field)
     new_value = max(0, current + delta)
+
+    # Build notification message for stock change
+    part_name = f"{part.part_type.name}-{part.product_type.name}-{part.brand.name}"
+    stock_type = "new" if field == "total_new" else "used"
+    if delta == 1:
+        message = f"A {stock_type} part has been added to {part_name}"
+        notif_type = 'add'
+    else:
+        message = f"A {stock_type} part has been removed from {part_name}"
+        notif_type = 'remove'
+
+    request.session['event_notification'] = {
+        'message': message,
+        'type': notif_type
+    }
 
     Part.objects.filter(pk=pk).update(**{field: new_value})
 

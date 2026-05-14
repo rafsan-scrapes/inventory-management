@@ -31,6 +31,8 @@ No user registration — accounts created manually via `createsuperuser` and Dja
 - **Separate pages for Add/Edit**: ~12 fields too long for a modal.
 - **`full_clean()` before save**: Triggers `Part.clean()` custom validation plus Django's `validate_unique()`.
 - **Stock Status computed property**: `Part.stock_status` is calculated from `total_new + total_used` — not stored in DB. Displayed in dashboard table as colored badge (In Stock, Low In Stock, Out of Stock).
+- **Event Notifications**: Temporary 3-second notifications shown after adding parts or adjusting stock. Uses Django session to pass messages across redirects.
+- **Stock Status Summary Messages**: Persistent dashboard notifications showing all out-of-stock (red `--danger`) and low-stock (amber `--warning`) parts. Updates automatically on page reload.
 
 ## Data Models
 
@@ -76,6 +78,7 @@ Unique together:
 | `/` | `dashboard-index` | `index` — Part list + filter + export |
 | `/add/` | `add-part` | `part` — Add new part |
 | `/part/edit/<pk>` | `edit-part` | `edit_part` — Edit existing part |
+| `/part/<pk>/adjust/` | `adjust-stock` | `adjust_stock` — AJAX stock adjustment |
 | `/get-part-types/` | `get-part-types` | `get_part_types` — AJAX, returns JSON |
 | `/export/` | `export-pdf` | `export_pdf` — POST, returns PDF |
 | `/login/` | `user-login` | Django LoginView |
@@ -121,3 +124,4 @@ inventory_project/
 - Vanilla JS only — no libraries, no npm
 - `PartForm` must never include FK fields (`product_type`, `brand`, `part_type`) — those are resolved by `_resolve_fk_fields()` in views
 - FK fields are handled via select + "＋ Add new…" pattern
+- **Event Notifications**: Stored in Django session as `event_notification` dict with `message` and `type` keys. Cleared in `index` view after being passed to template.

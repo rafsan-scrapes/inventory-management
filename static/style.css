@@ -24,6 +24,40 @@
   --nav-h:        80px;
 }
 
+/* ── Notifications ──────────────────────────────────────────── */
+.notification {
+  padding: 12px 20px;
+  margin: 0 16px 8px;
+  border-radius: var(--radius);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.notification--success {
+  background-color: var(--success);
+  color: oklch(0 0 0 / 0.8);
+}
+
+.notification--add {
+  background-color: var(--success-2);
+  color: var(--text);
+}
+
+.notification--remove {
+  background-color: var(--warning-2);
+  color: var(--text);
+}
+
+.notification--danger {
+  background-color: var(--danger);
+  color: oklch(0 0 0 / 0.8);
+}
+
+.notification--warning {
+  background-color: var(--warning);
+  color: oklch(0 0 0 / 0.8);
+}
+
 /* ── Reset ──────────────────────────────────────────────────── */
 *, *::before, *::after {
   margin: 0;
