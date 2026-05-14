@@ -387,11 +387,38 @@ table th:nth-child(7),  table td:nth-child(7)  { width: 140px;  } /* new */
 table th:nth-child(8),  table td:nth-child(8)  { width: 140px;  } /* used */
 table th:nth-child(9),  table td:nth-child(9)  { width: 50px;  } /* size */
 table th:nth-child(10), table td:nth-child(10) { width: 70px; } /* model */
-table th:nth-child(11), table td:nth-child(11) { width: 52px;  } /* edit */
+table th:nth-child(11), table td:nth-child(11) { width: 90px; } /* stock status */
+table th:nth-child(12), table td:nth-child(12) { width: 52px;  } /* edit */
 
 /* Stock counts — subtle color hints */
 td.stock-new  { color: var(--success); }
 td.stock-used { color: var(--warning); }
+
+/* Stock Status badges */
+.stock-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stock-status--in-stock {
+  background-color: oklch(0.3 0.05 160);
+  color: oklch(0.9 0.05 160);
+}
+
+.stock-status--low {
+  background-color: oklch(0.3 0.05 100);
+  color: oklch(0.9 0.05 100);
+}
+
+.stock-status--out {
+  background-color: oklch(0.3 0.05 30);
+  color: oklch(0.9 0.05 30);
+}
 
 /* Notes truncation */
 td.notes-cell {

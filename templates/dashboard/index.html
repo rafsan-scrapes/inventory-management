@@ -127,8 +127,9 @@ list all available part types in according to values
           <th>Part</th>
           <th>New</th>
           <th>Used</th>
-          <th>Size (kg)</th>
+          <th>Size</th>
           <th>Part Model No.</th>
+          <th>Stock Status</th>
           <th>
             {% if user.is_authenticated and user.is_staff %}
               Edit
@@ -215,6 +216,15 @@ list all available part types in according to values
           </td>
           <td>{{ item.size_kg }}</td>
           <td>{{ item.model_number }}</td>
+          <td>
+            {% if item.stock_status == 'In Stock' %}
+              <span class="stock-status stock-status--in-stock">{{ item.stock_status }}</span>
+            {% elif item.stock_status == 'Low In Stock' %}
+              <span class="stock-status stock-status--low">{{ item.stock_status }}</span>
+            {% else %}
+              <span class="stock-status stock-status--out">{{ item.stock_status }}</span>
+            {% endif %}
+          </td>
           <!-- <td>{{ item.shelf_number }}</td>
           <td>{{ item.column_number }}</td>
           <td>{{ item.row_number }}</td>

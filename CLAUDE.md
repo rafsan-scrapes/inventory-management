@@ -30,6 +30,7 @@ No user registration — accounts created manually via `createsuperuser` and Dja
 - **PDF export is selection-based**: Checkboxes per row + "Select All". JS injects selected IDs into hidden form and POSTs to `/export/`.
 - **Separate pages for Add/Edit**: ~12 fields too long for a modal.
 - **`full_clean()` before save**: Triggers `Part.clean()` custom validation plus Django's `validate_unique()`.
+- **Stock Status computed property**: `Part.stock_status` is calculated from `total_new + total_used` — not stored in DB. Displayed in dashboard table as colored badge (In Stock, Low In Stock, Out of Stock).
 
 ## Data Models
 
