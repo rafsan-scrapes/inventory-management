@@ -291,62 +291,73 @@ list all available part types in according to values
     pdfForm.submit();
   });
 
-  // ── Stock adjust (+/−) ─────────────────────────────────────────────────
-  const CSRF = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-  document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.adj-btn');
-    if (!btn) return;
+// ── Stock adjust (+/−) ─────────────────────────────────────────────────
+const CSRF = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    const pk    = btn.dataset.pk;
-    const field = btn.dataset.field;
-    const delta = btn.dataset.delta;
-
-    // Optimistic UI: disable both buttons for this row while request is in flight
-    const adjuster = btn.closest('.stock-adjuster');
-    const allBtns  = adjuster.querySelectorAll('.adj-btn');
-    allBtns.forEach(b => b.disabled = true);
-
-    fetch(`/part/${pk}/adjust/`, {
-      method:  'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-CSRFToken':  CSRF,
-      },
-      body: `field=${field}&delta=${delta}`,
-    })
-    .then(res => {
-      if (!res.ok) throw new Error(`Server error ${res.status}`);
-      return res.json();
-    })
-    .then(data => {
-      // Update the visible number
-      const spanId = `stock-${field === 'total_new' ? 'new' : 'used'}-${pk}`;
-      const span   = document.getElementById(spanId);
-      if (span) span.textContent = data.value;
-
-      // Dim the − button if value is now 0 (can't go lower)
-      const minusBtn = adjuster.querySelector('[data-delta="-1"]');
-      if (minusBtn) minusBtn.classList.toggle('adj-btn--disabled', data.value === 0);
-    })
-    .catch(() => {
-      alert('Could not update stock. Please refresh and try again.');
-    })
-    .finally(() => {
-      allBtns.forEach(b => b.disabled = false);
-    });
+function lockAllAdjustButtons() {
+  document.querySelectorAll('.adj-btn').forEach(b => {
+    b.disabled = true;
+    b.classList.add('adj-btn--disabled');
   });
+}
 
-  // On page load: dim any − buttons whose current value is already 0
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('.adj-btn');
+  if (!btn || btn.disabled) return;
+
+  const pk    = btn.dataset.pk;
+  const field = btn.dataset.field;
+  const delta = btn.dataset.delta;
+
+  // Lock every adjustment button on the entire page immediately
+  lockAllAdjustButtons();
+
+  fetch(`/part/${pk}/adjust/`, {
+    method:  'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken':  CSRF,
+    },
+    body: `field=${field}&delta=${delta}`,
+  })
+  .then(res => {
+    if (!res.ok) throw new Error(`Server error ${res.status}`);
+    return res.json();
+  })
+  .then(data => {
+    // Update the visible number in place
+    const spanId = `stock-${field === 'total_new' ? 'new' : 'used'}-${pk}`;
+    const span   = document.getElementById(spanId);
+    if (span) span.textContent = data.value;
+    // Auto-reload so the table reflects the saved value
+    window.location.reload();
+  })
+  .catch(() => {
+    alert('Could not update stock. Please refresh and try again.');
+    // On error, unlock so the user can retry
+    document.querySelectorAll('.adj-btn').forEach(b => {
+      b.disabled = false;
+      b.classList.remove('adj-btn--disabled');
+    });
+    // Re-apply 0-floor dimming after unlock
+    applyZeroDimming();
+  });
+});
+
+// On page load: dim any − buttons whose current value is already 0
+function applyZeroDimming() {
   document.querySelectorAll('.adj-btn[data-delta="-1"]').forEach(btn => {
-    const pk    = btn.dataset.pk;
-    const field = btn.dataset.field;
+    const pk     = btn.dataset.pk;
+    const field  = btn.dataset.field;
     const spanId = `stock-${field === 'total_new' ? 'new' : 'used'}-${pk}`;
     const span   = document.getElementById(spanId);
     if (span && parseInt(span.textContent, 10) === 0) {
       btn.classList.add('adj-btn--disabled');
     }
   });
+}
+applyZeroDimming();
 
   // ── Filter: Part Type cascade ───────────────────────────────────────────
   (function() {
