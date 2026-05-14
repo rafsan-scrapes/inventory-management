@@ -42,9 +42,12 @@ list all available part types in according to values
       <span>Parts Inventory</span>
     </div>
     {# TODO: change href to {% url 'dashboard-add' %} once that view exists #}
-    <a href="{% url 'add-part' %}" class="btn btn-primary">
-      <i class="fa-solid fa-plus"></i> Add Part
-    </a>
+    
+    {% if user.is_authenticated and user.is_staff %}
+      <a href="{% url 'add-part' %}" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Add Part
+      </a>
+    {% endif %}
   </div>
 
   {# ── Filter form (GET — does not interfere with the PDF export POST) ── #}
@@ -126,7 +129,11 @@ list all available part types in according to values
           <th>Used</th>
           <th>Size (kg)</th>
           <th>Part Model No.</th>
-          <th>Edit</th>
+          <th>
+            {% if user.is_authenticated and user.is_staff %}
+              Edit
+            {% endif %}
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -160,32 +167,50 @@ list all available part types in according to values
           <td>{{ item.part_type }}</td>
           <td class="stock-new">
             <div class="stock-adjuster">
-              <button class="adj-btn"
-                      data-pk="{{ item.id }}"
-                      data-field="total_new"
-                      data-delta="-1"
-                      title="Remove one new unit">−</button>
+              
+              {% if user.is_authenticated and user.is_staff %}        
+                <button class="adj-btn"
+                        data-pk="{{ item.id }}"
+                        data-field="total_new"
+                        data-delta="-1"
+                        title="Remove one new unit">−</button>
+              {% endif %}
+
               <span class="stock-val" id="stock-new-{{ item.id }}">{{ item.total_new }}</span>
-              <button class="adj-btn"
-                      data-pk="{{ item.id }}"
-                      data-field="total_new"
-                      data-delta="1"
-                      title="Add one new unit">+</button>
+              
+              {% if user.is_authenticated and user.is_staff %}
+                <button class="adj-btn"
+                        data-pk="{{ item.id }}"
+                        data-field="total_new"
+                        data-delta="1"
+                        title="Add one new unit">+</button>
+              {% endif %}
+
             </div>
           </td>
           <td class="stock-used">
             <div class="stock-adjuster">
-              <button class="adj-btn"
-                      data-pk="{{ item.id }}"
-                      data-field="total_used"
-                      data-delta="-1"
-                      title="Remove one used unit">−</button>
+              
+              {% if user.is_authenticated and user.is_staff %}
+                <button class="adj-btn"
+                        data-pk="{{ item.id }}"
+                        data-field="total_used"
+                        data-delta="-1"
+                        title="Remove one used unit">−</button>              
+              {% endif %}
+                
+
               <span class="stock-val" id="stock-used-{{ item.id }}">{{ item.total_used }}</span>
-              <button class="adj-btn"
-                      data-pk="{{ item.id }}"
-                      data-field="total_used"
-                      data-delta="1"
-                      title="Add one used unit">+</button>
+              
+              {% if user.is_authenticated and user.is_staff %}
+                <button class="adj-btn"
+                        data-pk="{{ item.id }}"
+                        data-field="total_used"
+                        data-delta="1"
+                        title="Add one used unit">+</button>
+              {% endif %}
+                
+
             </div>
           </td>
           <td>{{ item.size_kg }}</td>
@@ -195,11 +220,17 @@ list all available part types in according to values
           <td>{{ item.row_number }}</td>
           <td class="notes-cell" title="Rusty insides">{{ item.notes }}</td> -->
           <td>
-            {# TODO: change href to {% url 'dashboard-edit' part.pk %} #}
-            <a href="{% url 'edit-part' item.id %}" class="btn btn-icon" title="Edit">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </a>
+            {% if user.is_authenticated and user.is_staff %}
+                          
+              
+                {# TODO: change href to {% url 'dashboard-edit' part.pk %} #}
+                <a href="{% url 'edit-part' item.id %}" class="btn btn-icon" title="Edit">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </a>
+
+            {% endif %}
           </td>
+
         </tr>
         {% endfor %}
 
